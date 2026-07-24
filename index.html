@@ -24,19 +24,18 @@
             </div>
 
             <div class="control-group">
-                <label for="birthRule">Рождение (соседей): <span id="birthValue">3</span></label>
-                <!-- Ползунок от 1 до 8 соседей -->
-                <input type="range" id="birthRule" min="1" max="8" value="3">
+                <label for="ageModifier">Продолжительность жизни: <span id="ageModifierValue">Норма</span></label>
+                <!-- Значения: 0 (Короткая), 1 (Норма), 2 (Долгая) -->
+                <input type="range" id="ageModifier" min="0" max="2" value="1" step="1">
             </div>
 
             <div class="control-group">
-                <label for="surviveMin">Выживание (мин): <span id="surviveMinValue">2</span></label>
-                <input type="range" id="surviveMin" min="1" max="8" value="2">
-            </div>
-
-            <div class="control-group">
-                <label for="surviveMax">Выживание (макс): <span id="surviveMaxValue">3</span></label>
-                <input type="range" id="surviveMax" min="1" max="8" value="3">
+                <label for="seedSelector">Кисть (Паттерн):</label>
+                <select id="seedSelector">
+                    <option value="dot">Точка (1 пиксель)</option>
+                    <option value="square">Квадрат (3x3)</option>
+                    <option value="glider">Глайдер</option>
+                </select>
             </div>
         </aside>
     </div>
