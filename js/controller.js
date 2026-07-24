@@ -1,3 +1,4 @@
+import { audioManager } from './audio.js';
 export class AppController {
     // В конструктор передаем Модель и View
     constructor(model, view) {
@@ -51,20 +52,27 @@ export class AppController {
         btnPlay.addEventListener('click', () => {
             if (!this.isRunning) {
                 this.isRunning = true;
-                this.gameLoop(); // Запускаем цикл
+                audioManager.play('start');        // Звук клика
+                audioManager.toggleAmbient(true);  // Включаем фоновую музыку
+                this.gameLoop(); 
             }
         });
 
         btnPause.addEventListener('click', () => {
             this.isRunning = false;
-            cancelAnimationFrame(this.animationId); // Останавливаем цикл
+            audioManager.play('pause');         // Звук паузы
+            audioManager.toggleAmbient(false);  // Ставим фон на паузу
+            cancelAnimationFrame(this.animationId); 
         });
 
         btnClear.addEventListener('click', () => {
             this.isRunning = false;
+            audioManager.play('clear');         // Звук "вжух"
+            audioManager.toggleAmbient(false);  // Выключаем фон
             cancelAnimationFrame(this.animationId);
-            this.model.clear(); // Модель, сотри данные
-            this.view.draw(this.model.grid); // View, нарисуй пустоту
+            this.model.clear(); 
+            this.view.draw(this.model.grid); 
+        
         });
 
         // Ползунки правил
@@ -102,16 +110,15 @@ export class AppController {
             const colIndex = Math.floor(mouseX / this.view.cellSize);
             const rowIndex = Math.floor(mouseY / this.view.cellSize);
 
-            // 2. Считываем выбранное значение из HTML ('dot', 'square' или 'glider')
             const selectedSeed = seedSelector.value;
 
-            // 3. Вызываем метод Модели, передавая координаты и название паттерна
+            // Вызываем метод Модели
             this.model.stampSeed(colIndex, rowIndex, selectedSeed);
             
-            // Если игра на паузе, нужно принудительно обновить экран, 
-            // чтобы пользователь сразу увидел нарисованное.
+            // Включаем звук "бульк" при рисовании!
+            audioManager.play('spawn'); 
+            
             if (!this.isRunning) {
-                // Не забываем передать текущую фазу для правильного цвета!
                 const currentRule = this.model.patternRules[this.model.currentPhaseIndex];
                 this.view.draw(this.model.grid, currentRule.colorPhase);
             }
