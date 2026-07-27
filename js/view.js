@@ -1,21 +1,16 @@
 export class AutomatonView {
-    // В конструктор передаем сам HTML-элемент canvas и размер одной клетки
     constructor(canvas, cellSize) {
         this.canvas = canvas;
-        this.ctx = canvas.getContext('2d'); // Получаем "кисть" для рисования
+        this.ctx = canvas.getContext('2d');
         this.cellSize = cellSize;
     }
 
-    // Настройка физического размера холста
     setup(cols, rows) {
-        // Задаем холсту ширину и высоту в пикселях
         this.canvas.width = cols * this.cellSize;
         this.canvas.height = rows * this.cellSize;
     }
 
-    // Главный метод отрисовки. Принимает сетку из Модели
-    // Теперь draw принимает два аргумента
-    draw(grid, phaseName = 'growth') { 
+    draw(grid, phaseName = 'growth') {
         this.ctx.fillStyle = '#000000';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -27,9 +22,7 @@ export class AutomatonView {
                 const age = grid[y][x];
 
                 if (age > 0) {
-                    // Передаем возраст и фазу для вычисления цвета
                     this.ctx.fillStyle = this.getColorByAge(age, phaseName);
-                    
                     this.ctx.fillRect(
                         x * this.cellSize, 
                         y * this.cellSize, 
@@ -41,23 +34,15 @@ export class AutomatonView {
         }
     }
 
-    // Новая логика расцветки
     getColorByAge(age, phaseName) {
         let baseHue;
-        
-        // View сам решает, какому смыслу какой цвет (Hue) соответствует
         switch (phaseName) {
-            case 'growth':  baseHue = 120; break; // Зеленые оттенки
-            case 'crystal': baseHue = 210; break; // Синие оттенки
-            case 'decay':   baseHue = 0;   break; // Красные оттенки
-            default:        baseHue = 280;        // Фиолетовый (фоллбэк)
+            case 'growth':  baseHue = 120; break; // Зеленый
+            case 'crystal': baseHue = 210; break; // Синий
+            case 'decay':   baseHue = 0;   break; // Красный
+            default:        baseHue = 280;        
         }
-
-        // Чем старше клетка, тем она тусклее (играем со светлотой HSL)
-        // Если клетка только родилась (age=1), светлота будет ~68%
-        // Чем старше (age=10), тем ближе к 50%
-        const lightness = Math.max(30, 70 - (age * 2)); 
-        
+        const lightness = Math.max(20, 70 - (age * 10)); 
         return `hsl(${baseHue}, 100%, ${lightness}%)`;
     }
 }

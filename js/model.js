@@ -4,18 +4,17 @@ export class AutomatonModel {
         this.rows = rows;
         this.grid = this.createEmptyGrid();
 
+        // Фрактальные фазы
         this.patternRules = [
-            { birth: [1, 2], survive: [1, 2, 3], ageLimit: 4, colorPhase: 'growth' },
-            { birth: [2], survive: [2], ageLimit: 8, colorPhase: 'crystal' },
-            { birth: [3], survive: [1, 2, 3, 4], ageLimit: 12, colorPhase: 'decay' }
+            { birth: [1, 2], survive: [1, 2, 3], ageLimit: 3, colorPhase: 'growth' },
+            { birth: [2], survive: [2], ageLimit: 5, colorPhase: 'crystal' },
+            { birth: [3], survive: [1, 2], ageLimit: 2, colorPhase: 'decay' }
         ];
         
-        this.currentPhaseIndex = 0; 
-        this.tickCounter = 0; 
-        this.ticksPerPhase = 25; 
-        this.globalAgeModifier = 0;
-        this.activeCellsCount = 0; // Оптимизированный счетчик
-        
+        this.currentPhaseIndex = 0;
+        this.globalAgeModifier = 0; 
+
+        // Библиотека кистей
         this.seedLibrary = {
             'dot': [ [0, 0] ],
             'square': [
@@ -30,30 +29,6 @@ export class AutomatonModel {
             ]
         };
     }
-    
-    getActiveCellsCount() {
-        return this.activeCellsCount; // Теперь метод возвращает готовое число моментально
-    }
-
-    stampSeed(centerX, centerY, seedName) {
-        const seedPattern = this.seedLibrary[seedName];
-        if (!seedPattern) return; 
-
-        for (let i = 0; i < seedPattern.length; i++) {
-            const offsetX = seedPattern[i][0];
-            const offsetY = seedPattern[i][1];
-            
-            const x = centerX + offsetX;
-            const y = centerY + offsetY;
-
-            if (x >= 0 && x < this.cols && y >= 0 && y < this.rows) {
-                if (this.grid[y][x] === 0) { // Если клетка была пустой
-                    this.grid[y][x] = 1; 
-                    this.activeCellsCount++; // Плюсуем счетчик при ручном рисовании
-                }
-            }
-        }
-    }
 
     createEmptyGrid() {
         return Array.from({ length: this.rows }, () => new Array(this.cols).fill(0));
@@ -62,6 +37,21 @@ export class AutomatonModel {
     getCellAge(x, y) {
         if (x < 0 || x >= this.cols || y < 0 || y >= this.rows) return 0; 
         return this.grid[y][x];
+    }
+
+    // Посадка семечка
+    stampSeed(centerX, centerY, seedName) {
+        const seedPattern = this.seedLibrary[seedName];
+        if (!seedPattern) return; 
+
+        for (let i = 0; i < seedPattern.length; i++) {
+            const x = centerX + seedPattern[i][0];
+            const y = centerY + seedPattern[i][1];
+
+            if (x >= 0 && x < this.cols && y >= 0 && y < this.rows) {
+                this.grid[y][x] = 1; 
+            }
+        }
     }
 
     countNeighbors(x, y) {
@@ -75,11 +65,26 @@ export class AutomatonModel {
         return sum;
     }
 
+    // Переключение фазы
+    nextPhase() {
+        this.currentPhaseIndex = (this.currentPhaseIndex + 1) % this.patternRules.length;
+        return this.patternRules[this.currentPhaseIndex].colorPhase; 
+    }
+
+    countActiveCells() {
+        let count = 0;
+        for (let y = 0; y < this.rows; y++) {
+            for (let x = 0; x < this.cols; x++) {
+                if (this.grid[y][x] > 0) count++;
+            }
+        }
+        return count;
+    }
+
     update() {
         const nextGrid = this.createEmptyGrid();
-        
-        // Получаем активное правило для текущей фазы
         const currentRule = this.patternRules[this.currentPhaseIndex];
+        const currentAgeLimit = Math.max(1, currentRule.ageLimit + this.globalAgeModifier);
 
         for (let y = 0; y < this.rows; y++) {
             for (let x = 0; x < this.cols; x++) {
@@ -87,8 +92,7 @@ export class AutomatonModel {
                 const neighbors = this.countNeighbors(x, y);
 
                 if (age > 0) {
-                     // Выживание
-                    if (currentRule.survive.includes(neighbors) && age < currentRule.ageLimit) {
+                    if (currentRule.survive.includes(neighbors) && age < currentAgeLimit) {
                          nextGrid[y][x] = age + 1;
                     } else {
                         nextGrid[y][x] = 0; 
@@ -96,27 +100,15 @@ export class AutomatonModel {
                 } else {
                     if (currentRule.birth.includes(neighbors)) {
                         nextGrid[y][x] = 1;
-                        currentActiveCount++; // Клетка родилась
                     }
                 }
             }
         }
-        
         this.grid = nextGrid;
-        this.activeCellsCount = currentActiveCount; // Сохраняем результат
-        
-        // Обновляем фазу
-        this.tickCounter++;
-        if (this.tickCounter % this.ticksPerPhase === 0) {
-             // Циклически переключаем фазы (0 -> 1 -> 2 -> 0...)
-            this.currentPhaseIndex = (this.currentPhaseIndex + 1) % this.patternRules.length;
-        }
     }
 
     clear() {
         this.grid = this.createEmptyGrid();
-        this.tickCounter = 0;
         this.currentPhaseIndex = 0;
-        this.activeCellsCount = 0; // Сбрасываем счетчик при очистке
     }
 }
