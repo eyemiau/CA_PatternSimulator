@@ -80,11 +80,9 @@ export class AutomatonModel {
 
     update() {
         const nextGrid = this.createEmptyGrid();
+        
+        // Получаем активное правило для текущей фазы
         const currentRule = this.patternRules[this.currentPhaseIndex];
-
-        // Применяем модификатор к лимиту текущей фазы
-        // Используем Math.max(1, ...), чтобы клетки жили хотя бы 1 тик
-        const currentAgeLimit = Math.max(1, currentRule.ageLimit + this.globalAgeModifier);
 
         for (let y = 0; y < this.rows; y++) {
             for (let x = 0; x < this.cols; x++) {
@@ -92,8 +90,8 @@ export class AutomatonModel {
                 const neighbors = this.countNeighbors(x, y);
 
                 if (age > 0) {
-                     // Выживание: теперь сравниваем с currentAgeLimit
-                    if (currentRule.survive.includes(neighbors) && age < currentAgeLimit) {
+                     // Выживание
+                    if (currentRule.survive.includes(neighbors) && age < currentRule.ageLimit) {
                          nextGrid[y][x] = age + 1;
                     } else {
                         nextGrid[y][x] = 0; 
@@ -109,12 +107,13 @@ export class AutomatonModel {
         
         this.grid = nextGrid;
         
+        // Обновляем фазу
         this.tickCounter++;
         if (this.tickCounter % this.ticksPerPhase === 0) {
+             // Циклически переключаем фазы (0 -> 1 -> 2 -> 0...)
             this.currentPhaseIndex = (this.currentPhaseIndex + 1) % this.patternRules.length;
         }
     }
-
 
     clear() {
         this.grid = this.createEmptyGrid();
