@@ -5,46 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Генератор узоров | Клеточный автомат</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Подключаем пиксельный шрифт для ретро-стиля -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Секция с холстом (View) -->
-        <main class="canvas-section">
-            <canvas id="gameCanvas"></canvas>
-        </main>
-
-        <!-- Панель управления (Контролы для Controller) -->
-        <aside class="controls-section">
-            <h2>Настройки</h2>
+    <!-- Обертка для сохранения пропорций фонового изображения -->
+    <div class="aspect-ratio-wrapper">
+        <div class="app-container">
             
-            <div class="control-group">
-                <button id="btnPlay">Старт</button>
-                <button id="btnPause">Пауза</button>
-                <button id="btnClear">Очистить</button>
-            </div>
+            <!-- Секция с холстом (View) -->
+            <main class="canvas-section">
+                <canvas id="gameCanvas"></canvas>
+            </main>
 
-            <div class="control-group">
-                <label for="ageModifier">Продолжительность жизни: <span id="ageModifierValue">Норма</span></label>
-                <!-- Значения: 0 (Короткая), 1 (Норма), 2 (Долгая) -->
-                <input type="range" id="ageModifier" min="0" max="2" value="1" step="1">
-            </div>
+            <!-- Панель управления (Контролы для Controller) -->
+            <aside class="controls-section">
+                <!-- Заголовок скрыт в CSS, так как он уже есть на фоне -->
+                <h2>Настройки</h2>
+                
+                <div class="control-group">
+                    <button id="btnPlay">Старт</button>
+                    <button id="btnPause">Пауза</button>
+                    <button id="btnClear">Очистить</button>
+                </div>
 
-            <div class="control-group">
-                <label for="seedSelector">Кисть (Паттерн):</label>
-                <select id="seedSelector">
-                    <option value="dot">Точка (1 пиксель)</option>
-                    <option value="square">Квадрат (3x3)</option>
-                    <option value="glider">Глайдер</option>
-                </select>
-            </div>
-            
+                <div class="control-group">
+                    <label for="ageModifier">Жизнь: <span id="ageModifierValue">Норма</span></label>
+                    <input type="range" id="ageModifier" min="0" max="2" value="1" step="1">
+                </div>
+
+                <div class="control-group">
+                    <label for="seedSelector">Кисть (Паттерн):</label>
+                    <select id="seedSelector">
+                        <option value="dot">Точка (1px)</option>
+                        <option value="square">Квадрат (3x3)</option>
+                        <option value="glider">Глайдер</option>
+                    </select>
+                </div>
+                
             <div class="control-group">
                 <p>Текущая фаза: <strong id="phaseIndicator">growth</strong></p>
             </div>
         </aside>
+            
+        </div>
     </div>
 
-    <!-- Подключаем главный скрипт как модуль -->
     <script type="module" src="js/app.js"></script>
 </body>
 </html>
